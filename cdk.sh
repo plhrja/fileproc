@@ -51,19 +51,23 @@ while (("$#")); do
   esac
 done
 
-[[ -f $ENV.env ]] && export $(cat $ENV.env | envsubst | xargs)
+if [[ -f $ENV.env ]]
+then
+  echo "Loading environment configurations from $ENV.env"
+  export $(cat $ENV.env | envsubst | xargs)
+else
+  echo "No environment file $ENV.env found, proceeding..."
+fi
 
 if [[ $BOOTSTRAP ]]
 then
   echo "Bootstrapping the CDK environment"
-  npx cdk bootstrap $ACCOUNT/$REGION --profile $PROFILE
+  npx cdk bootstrap $ACCOUNT/$REGION
 fi
 
-CMD="npx cdk --profile $PROFILE $COMMANDS $FLAGS"
+CMD="npx cdk $COMMANDS $FLAGS"
 
 echo "Executing $CMD"
-pushd infra
 exec $CMD
-popd
 
 echo "Finished"
