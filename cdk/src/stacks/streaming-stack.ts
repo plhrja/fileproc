@@ -24,6 +24,7 @@ export class FileProcStreamingStack extends Stack {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
+      eventBridgeEnabled: true
     });
 
     // DynamoDB Table
@@ -57,7 +58,13 @@ export class FileProcStreamingStack extends Stack {
       eventPattern: {
         source: ["aws.s3"],
         detailType: ["Object Created"],
+        detail: {
+          bucket: {
+            name: [bucket.bucketName]
+          }
+        }
       },
+      enabled: true,
       targets: [new targets.LambdaFunction(lambdaFunction)],
     });
 
